@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PROSPECT</title>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#00C2FF"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="PROSPECT"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0F1923;--surf:#131e2e;--bord:#1e3050;--muted:#8B9BB4;--text:#F5F7FA;
+  --cyan:#00C2FF;--green:#00D68F;--amber:#FFB800;--red:#FF4D6A;--purple:#bf80ff;--r:10px;
+}
+body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;font-size:14px}
+
+/* HEADER */
+header{background:var(--surf);border-bottom:1px solid var(--bord);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:50}
+.logo{font-size:17px;font-weight:900;letter-spacing:-.5px;white-space:nowrap}
+.logo span{color:var(--cyan)}
+.btn-add{background:linear-gradient(135deg,#0072b1,var(--cyan));border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;padding:8px 14px;white-space:nowrap}
+
+/* TAB NAV */
+.tab-nav{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;background:var(--surf);border-bottom:1px solid var(--bord);padding:0 10px;position:sticky;top:49px;z-index:40}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab{background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;color:var(--muted);font-size:13px;font-weight:700;padding:11px 16px;white-space:nowrap;transition:color .15s,border-color .15s;margin-bottom:-1px}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+
+/* MAIN */
+main{padding:14px;max-width:1100px;margin:0 auto}
+section{display:none}
+section.active{display:block}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+@media(min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);padding:12px 14px}
+.stat-lbl{color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.stat-val{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.stat-sub{color:var(--muted);font-size:11px;margin-top:2px}
+
+/* PANEL */
+.panel{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.panel-hd{color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:599px){.grid2{grid-template-columns:1fr}}
+
+/* PIPE BARS */
+.pb-row{margin-bottom:11px}
+.pb-meta{display:flex;justify-content:space-between;margin-bottom:4px;font-size:12px}
+.pb-track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;border-radius:3px;transition:width .5s ease}
+
+/* FOLLOW-UP */
+.fu-item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #1a2a40}
+.fu-item:last-child{border-bottom:none}
+.fu-name{font-size:13px;font-weight:600}
+.fu-act{color:var(--muted);font-size:11px;margin-top:2px}
+
+/* CONTACTS */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.filters input,.filters select{background:var(--surf);border:1px solid var(--bord);border-radius:7px;padding:8px 11px;color:var(--text);font-size:12px;outline:none;font-family:inherit}
+.filters input{flex:1;min-width:140px}
+.clist{display:flex;flex-direction:column;gap:7px}
+.ccard{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);padding:12px;display:grid;grid-template-columns:34px 1fr auto;gap:0 10px;align-items:start}
+.ava{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1a2a4a,#0a1428);border:1px solid var(--bord);display:flex;align-items:center;justify-content:center;color:var(--cyan);font-weight:800;font-size:13px;flex-shrink:0}
+.cn{font-weight:700;font-size:13px}
+.cco{color:var(--muted);font-size:11px;margin-top:1px}
+.cmeta{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;align-items:center}
+.cright{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.cval{font-weight:700;font-size:12px;color:var(--cyan)}
+.cdays{font-size:11px}
+.cact{color:var(--muted);font-size:11px;grid-column:2/4;margin-top:4px}
+.cbtn-wrap{grid-column:2/4;display:flex;gap:5px;margin-top:5px}
+.bi{background:none;border:1px solid var(--bord);border-radius:6px;color:var(--muted);font-size:11px;cursor:pointer;padding:4px 9px;transition:border-color .15s,color .15s;font-family:inherit}
+.bi:hover{border-color:var(--cyan);color:var(--cyan)}
+.bi-del:hover{border-color:var(--red)!important;color:var(--red)!important}
+
+/* KANBAN */
+.kanban{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:thin;scrollbar-color:var(--bord) transparent}
+.kanban::-webkit-scrollbar{height:4px}
+.kanban::-webkit-scrollbar-thumb{background:var(--bord);border-radius:2px}
+.kcol{flex-shrink:0;width:200px;background:var(--surf);border:1px solid var(--bord);border-radius:var(--r)}
+.khdr{padding:10px 12px;border-bottom:1px solid var(--bord);display:flex;justify-content:space-between;align-items:center}
+.ktitle{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700}
+.kcount{background:var(--bord);color:var(--muted);font-size:10px;border-radius:9px;padding:1px 6px}
+.ktot{color:var(--muted);font-size:10px}
+.kbody{padding:8px;display:flex;flex-direction:column;gap:6px;min-height:60px}
+.kcard{background:var(--bg);border:1px solid var(--bord);border-radius:7px;padding:9px 10px;cursor:pointer;transition:border-color .15s}
+.kcard:hover{border-color:var(--cyan)}
+.kcard-name{font-size:12px;font-weight:700;margin-bottom:2px}
+.kcard-co{font-size:10px;color:var(--muted);margin-bottom:5px}
+.kcard-foot{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.kcard-val{font-size:11px;color:var(--cyan);font-weight:700}
+.kcard-script{font-size:10px;font-weight:700;border-radius:4px;padding:2px 6px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── SCRIPTS RAPPORT ── */
+.scripts-list{display:flex;flex-direction:column;gap:10px}
+.script-report-card{border-radius:var(--r);border:2px solid;padding:14px}
+.src-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:8px}
+.src-name{font-size:14px;font-weight:800}
+.src-score-badge{font-size:11px;font-weight:800;border-radius:20px;padding:3px 10px;white-space:nowrap}
+.src-preview{font-size:11px;line-height:1.5;opacity:.8;margin-bottom:10px;font-style:italic;border-left:2px solid;padding-left:10px}
+.src-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.src-stat{text-align:center}
+.src-stat-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.5px;opacity:.7;margin-bottom:2px}
+.src-stat-val{font-size:16px;font-weight:800}
+.src-bar-track{height:6px;background:rgba(0,0,0,.3);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.src-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.src-conv-line{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+
+/* SCRIPTS MANAGER */
+.scripts-manager{display:flex;flex-direction:column;gap:8px}
+.script-item{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);padding:12px}
+.si-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.si-name{font-size:13px;font-weight:800}
+.si-actions{display:flex;gap:5px}
+.si-text{font-size:12px;color:var(--muted);line-height:1.5;font-style:italic;border-left:2px solid var(--bord);padding-left:8px}
+.script-color-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.b-b2b{background:#1a2a4a;color:var(--cyan)}
+.b-b2c{background:#2a1a4a;color:var(--purple)}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.sbadge{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 7px;font-size:10px;font-weight:600}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:560px){.ov{align-items:center}}
+.modal{background:var(--bg);border:1px solid var(--bord);border-radius:14px 14px 0 0;padding:22px 18px;width:100%;max-width:520px;max-height:92dvh;overflow-y:auto}
+@media(min-width:560px){.modal{border-radius:14px}}
+.modal-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-ttl{font-size:17px;font-weight:800}
+.modal-x{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1;padding:4px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ffull{grid-column:1/-1}
+.flbl{display:block;color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px}
+.fgrid input,.fgrid select,.fgrid textarea{width:100%;background:var(--surf);border:1px solid var(--bord);border-radius:7px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;font-family:inherit}
+.fgrid textarea{resize:vertical}
+
+/* SCRIPT PICKER in modal */
+.script-picker{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.sp-option{border:2px solid var(--bord);border-radius:8px;padding:8px 12px;cursor:pointer;transition:border-color .15s,background .15s;display:flex;align-items:center;gap:8px}
+.sp-option.sel{background:rgba(255,255,255,.04)}
+.sp-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sp-name{font-size:12px;font-weight:700}
+.sp-preview{font-size:11px;opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.sp-none{color:var(--muted);font-size:12px;font-style:italic;padding:8px 0}
+
+/* SCRIPT MODAL */
+.sm-colors{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.sm-color-opt{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:border-color .15s,transform .1s}
+.sm-color-opt.sel{border-color:#fff;transform:scale(1.2)}
+
+.modal-foot{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+.btn-cancel{background:none;border:1px solid var(--bord);border-radius:7px;padding:9px 16px;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit}
+.btn-save{background:linear-gradient(135deg,#0072b1,var(--cyan));border:none;border-radius:7px;padding:9px 20px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-outline{background:none;border:1px solid var(--bord);border-radius:7px;padding:7px 12px;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a3a28;border:1px solid var(--green);border-radius:8px;color:var(--green);padding:9px 18px;font-size:12px;font-weight:600;z-index:200;pointer-events:none;animation:fu .25s ease,fo .3s ease 1.7s forwards}
+@keyframes fu{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes fo{to{opacity:0}}
+
+/* MISC */
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+.text-green{color:var(--green)}.text-red{color:var(--red)}.text-amber{color:var(--amber)}.text-cyan{color:var(--cyan)}.text-muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">PROS<span>PECT</span></div>
+  <button class="btn-add" id="btnAdd">+ Ajouter</button>
+</header>
+<nav class="tab-nav">
+  <button class="tab active" data-tab="s-dashboard">📊 Dashboard</button>
+  <button class="tab" data-tab="s-contacts">👥 Contacts</button>
+  <button class="tab" data-tab="s-pipeline">🔀 Pipeline</button>
+  <button class="tab" data-tab="s-scripts">✍️ Scripts</button>
+</nav>
+<main>
+  <section id="s-dashboard" class="active">
+    <div class="stats" id="kpis"></div>
+    <div class="grid2">
+      <div class="panel"><div class="panel-hd">Pipeline par étape</div><div id="pipeChart"></div></div>
+      <div class="panel"><div class="panel-hd">Relances urgentes <span id="fuCount"></span></div><div id="fuList"></div></div>
+    </div>
+    <div class="panel"><div class="panel-hd">B2B / B2C</div><div class="grid2" id="splitChart"></div></div>
+  </section>
+
+  <section id="s-contacts">
+    <div class="filters">
+      <input id="fsearch" placeholder="🔍 Rechercher…"/>
+      <select id="fstatus"></select>
+      <select id="ftype"><option>Tous</option><option>B2B</option><option>B2C</option></select>
+      <select id="fscript"><option value="">Tous les scripts</option></select>
+      <select id="fsort"><option value="lastContact">Récents</option><option value="value">Valeur</option><option value="name">Nom</option></select>
+    </div>
+    <div class="clist" id="clist"></div>
+  </section>
+
+  <section id="s-pipeline">
+    <div class="kanban" id="kanban"></div>
+  </section>
+
+  <section id="s-scripts">
+    <!-- Rapport -->
+    <div class="panel">
+      <div class="panel-hd">Performance des scripts <span id="scriptCount" style="color:var(--muted);font-size:11px"></span></div>
+      <div class="scripts-list" id="scriptReport"></div>
+    </div>
+    <!-- Gestionnaire -->
+    <div class="panel">
+      <div class="panel-hd">Mes scripts <button class="btn-outline" id="btnNewScript">+ Nouveau script</button></div>
+      <div class="scripts-manager" id="scriptManager"></div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL CONTACT -->
+<div class="ov" id="ovContact" style="display:none">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ttl" id="mttl">Nouveau contact</div><button class="modal-x" id="mx">×</button></div>
+    <div class="fgrid">
+      <div><label class="flbl">Nom *</label><input id="fName"/></div>
+      <div><label class="flbl">Entreprise</label><input id="fCompany"/></div>
+      <div><label class="flbl">Email</label><input id="fEmail" type="email"/></div>
+      <div><label class="flbl">Téléphone</label><input id="fPhone" type="tel"/></div>
+      <div><label class="flbl">Type</label><select id="fType"><option>B2B</option><option>B2C</option></select></div>
+      <div><label class="flbl">Statut</label><select id="fStatus"></select></div>
+      <div><label class="flbl">Valeur (€)</label><input id="fValue" type="number"/></div>
+      <div><label class="flbl">Dernier contact</label><input id="fLastContact" type="date"/></div>
+      <div class="ffull">
+        <label class="flbl">Script de closing utilisé</label>
+        <div class="script-picker" id="scriptPicker"></div>
+      </div>
+      <div class="ffull"><label class="flbl">Prochaine action</label><input id="fNextAction"/></div>
+      <div class="ffull"><label class="flbl">Notes</label><textarea id="fNotes" rows="2"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" id="mcancel">Annuler</button>
+      <button class="btn-save" id="msave">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SCRIPT -->
+<div class="ov" id="ovScript" style="display:none">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-ttl" id="smttl">Nouveau script</div><button class="modal-x" id="smx">×</button></div>
+    <div class="fgrid">
+      <div class="ffull"><label class="flbl">Nom du script (ex: Texte A, Script Urgence…)</label><input id="smName" placeholder="Ex: Texte 1 — Offre limitée"/></div>
+      <div class="ffull">
+        <label class="flbl">Couleur d'identification</label>
+        <div class="sm-colors" id="smColors"></div>
+      </div>
+      <div class="ffull"><label class="flbl">Texte du script de closing</label><textarea id="smText" rows="5" placeholder="Écris ici ton texte de closing complet…"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" id="smcancel">Annuler</button>
+      <button class="btn-save" id="smsave">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════
+const STATUSES=["Nouveau","Contacté","En discussion","Proposition","Gagné","Perdu"];
+const SC={
+  "Nouveau":      {dot:"#8B9BB4",text:"#c8d4e8",bg:"#1a2744",bord:"#2a4070"},
+  "Contacté":     {dot:"#00C2FF",text:"#a0d8ef",bg:"#0e2a3a",bord:"#1a4a6a"},
+  "En discussion":{dot:"#7CFC00",text:"#b0e890",bg:"#1a2a10",bord:"#2a4a18"},
+  "Proposition":  {dot:"#FFB800",text:"#f0d080",bg:"#2a2010",bord:"#4a3818"},
+  "Gagné":        {dot:"#00D68F",text:"#80e8c0",bg:"#0e2a1e",bord:"#1a4a30"},
+  "Perdu":        {dot:"#FF4D6A",text:"#f09090",bg:"#2a1018",bord:"#4a1a28"},
+};
+const PALETTE=["#00C2FF","#00D68F","#FFB800","#FF4D6A","#bf80ff","#7CFC00","#FF8C00","#00BFFF","#FF69B4","#98FB98"];
+
+// ══════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════
+let scripts=[
+  {id:"s1",name:"Texte 1 — Valeur directe",color:"#00C2FF",text:"Bonjour [Prénom], je vous contacte car j'ai aidé des entreprises similaires à la vôtre à augmenter leur chiffre d'affaires de 30% en 3 mois. Je voudrais vous montrer comment nous pouvons faire de même pour vous. Avez-vous 15 minutes cette semaine ?"},
+  {id:"s2",name:"Texte 2 — Urgence limitée",color:"#FFB800",text:"[Prénom], nous lançons une offre exclusive jusqu'au [date] — tarif fondateur réservé aux 10 premiers clients. Je pense sincèrement que c'est fait pour vous. On en parle avant la fin de semaine ?"},
+  {id:"s3",name:"Texte 3 — Référence sociale",color:"#00D68F",text:"Bonjour [Prénom], [Nom d'un client] m'a recommandé de vous contacter. Nous venons de les accompagner sur [résultat concret]. J'aimerais vous présenter la même approche, adaptée à votre situation."},
+];
+let nextScriptId=4;
+
+let contacts=[
+  {id:1,name:"Sophie Martin", company:"TechFlow SAS",   type:"B2B",status:"En discussion",email:"s.martin@techflow.fr",    phone:"+33 6 12 34 56 78",value:12000,lastContact:"2026-06-08",nextAction:"Envoyer proposition",  notes:"",scriptId:"s1"},
+  {id:2,name:"Jean Dupont",   company:"",               type:"B2C",status:"Contacté",      email:"jean.dupont@gmail.com",  phone:"+33 7 98 76 54 32",value:800,  lastContact:"2026-06-07",nextAction:"Relancer par SMS",       notes:"",scriptId:"s2"},
+  {id:3,name:"Amira Benali",  company:"Innovatia Group",type:"B2B",status:"Proposition",   email:"a.benali@innovatia.com", phone:"+33 6 55 44 33 22",value:45000,lastContact:"2026-06-05",nextAction:"Réponse attendue",       notes:"Budget validé",scriptId:"s3"},
+  {id:4,name:"Lucas Bernard", company:"StartupXYZ",     type:"B2B",status:"Nouveau",       email:"lbernard@startupxyz.io",phone:"+33 6 11 22 33 44",value:5500, lastContact:"2026-06-09",nextAction:"Premier appel",           notes:"",scriptId:"s3"},
+  {id:5,name:"Claire Morin",  company:"",               type:"B2C",status:"Gagné",         email:"claire.morin@hotmail.fr",phone:"+33 7 77 66 55 44",value:1200,lastContact:"2026-06-01",nextAction:"Onboarding",              notes:"Contrat signé",scriptId:"s1"},
+  {id:6,name:"Marc Leblanc",  company:"Digitech SARL",  type:"B2B",status:"Perdu",         email:"m.leblanc@digitech.fr", phone:"+33 6 99 88 77 66",value:8000, lastContact:"2026-05-28",nextAction:"Archiver",               notes:"A choisi concurrent",scriptId:"s2"},
+  {id:7,name:"Yasmine Chara", company:"MediaPulse",     type:"B2B",status:"En discussion", email:"y.chara@mediapulse.fr", phone:"+33 6 33 44 55 66",value:22000,lastContact:"2026-06-06",nextAction:"Demo produit J+3",       notes:"",scriptId:"s1"},
+  {id:8,name:"Romain Fabre",  company:"FinCore",        type:"B2B",status:"Gagné",         email:"r.fabre@fincore.fr",    phone:"+33 6 44 55 66 77",value:31000,lastContact:"2026-05-20",nextAction:"Upsell Q3",              notes:"",scriptId:"s3"},
+  {id:9,name:"Nadia Petit",   company:"",               type:"B2C",status:"Gagné",         email:"nadia.petit@gmail.com", phone:"+33 7 22 33 44 55",value:950,  lastContact:"2026-06-03",nextAction:"Fidélisation",            notes:"",scriptId:"s2"},
+  {id:10,name:"Thomas Roi",   company:"WebAgency",      type:"B2B",status:"Perdu",         email:"t.roi@webagency.fr",    phone:"+33 6 66 77 88 99",value:6000, lastContact:"2026-05-15",nextAction:"Archiver",               notes:"",scriptId:"s1"},
+];
+let nextId=11;
+let editingContactId=null;
+let editingScriptId=null;
+let selScriptId="";
+let selScriptColor=PALETTE[0];
+let listFilters={search:"",status:"Tous",type:"Tous",script:"",sort:"lastContact"};
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+const fmt=n=>n>=1000?`${(n/1000).toFixed(n%1000===0?0:1)}k€`:`${n}€`;
+const fmtFull=n=>`${n.toLocaleString("fr-FR")} €`;
+const today=()=>new Date().toISOString().split("T")[0];
+const daysAgo=d=>Math.floor((Date.now()-new Date(d))/86400000);
+const getScript=id=>scripts.find(s=>s.id===id);
+
+function sbadge(status){
+  const c=SC[status]||{};
+  return `<span class="sbadge" style="background:${c.bg};color:${c.text}"><span class="sdot" style="background:${c.dot}"></span>${status}</span>`;
+}
+function tbadge(type){
+  return `<span class="badge ${type==="B2B"?"b-b2b":"b-b2c"}">${type}</span>`;
+}
+function scriptBadge(scriptId){
+  const s=getScript(scriptId);
+  if(!s) return "";
+  const bg=s.color+"22";
+  return `<span class="badge" style="background:${bg};color:${s.color};border:1px solid ${s.color}44">✍️ ${s.name}</span>`;
+}
+function hexToRgba(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function toast(msg){
+  const t=document.createElement("div");t.className="toast";t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2100);
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════════════════════
+function renderAll(){
+  renderKPIs();renderPipe();renderFU();renderSplit();
+  renderContacts();renderKanban();renderScripts();
+}
+
+// KPIs
+function renderKPIs(){
+  const total=contacts.length;
+  const won=contacts.filter(c=>c.status==="Gagné");
+  const active=contacts.filter(c=>!["Gagné","Perdu"].includes(c.status));
+  const pipeline=active.reduce((s,c)=>s+(c.value||0),0);
+  const wonVal=won.reduce((s,c)=>s+(c.value||0),0);
+  const conv=total?Math.round(won.length/total*100):0;
+  document.getElementById("kpis").innerHTML=`
+    <div class="stat"><div class="stat-lbl">Contacts</div><div class="stat-val">${total}</div><div class="stat-sub">${active.length} actifs</div></div>
+    <div class="stat"><div class="stat-lbl">Pipeline</div><div class="stat-val text-cyan">${fmt(pipeline)}</div><div class="stat-sub">en cours</div></div>
+    <div class="stat"><div class="stat-lbl">Revenus</div><div class="stat-val text-green">${fmt(wonVal)}</div><div class="stat-sub">${won.length} gagnés</div></div>
+    <div class="stat"><div class="stat-lbl">Conversion</div><div class="stat-val text-amber">${conv}%</div><div class="stat-sub">contacts → gagnés</div></div>`;
+}
+
+// PIPE
+function renderPipe(){
+  const max=Math.max(...STATUSES.map(s=>contacts.filter(c=>c.status===s).length),1);
+  document.getElementById("pipeChart").innerHTML=STATUSES.map(s=>{
+    const c=SC[s],count=contacts.filter(x=>x.status===s).length;
+    const val=contacts.filter(x=>x.status===s).reduce((a,x)=>a+(x.value||0),0);
+    return `<div class="pb-row">
+      <div class="pb-meta">
+        <span style="display:flex;align-items:center;gap:5px;color:${c.text};font-size:12px;font-weight:600"><span class="sdot" style="background:${c.dot}"></span>${s}</span>
+        <span class="text-muted" style="font-size:11px">${count} · ${fmt(val)}</span>
+      </div>
+      <div class="pb-track"><div class="pb-fill" style="width:${Math.round(count/max*100)}%;background:${c.dot}"></div></div>
+    </div>`;
+  }).join("");
+}
+
+// FU
+function renderFU(){
+  const fu=contacts.filter(c=>!["Gagné","Perdu"].includes(c.status)&&daysAgo(c.lastContact)>=5);
+  document.getElementById("fuCount").innerHTML=`<span style="color:${fu.length>0?"var(--red)":"var(--green)"}">${fu.length}</span>`;
+  document.getElementById("fuList").innerHTML=fu.length===0
+    ?`<div style="color:var(--green);text-align:center;padding:20px;font-size:13px">✓ Tout est à jour</div>`
+    :fu.slice(0,5).map(c=>{
+      const d=daysAgo(c.lastContact);
+      return `<div class="fu-item">
+        <div><div class="fu-name">${c.name}</div><div class="fu-act">${c.nextAction||"—"}</div></div>
+        <div style="text-align:right">
+          <div style="font-size:12px;font-weight:700;color:${d>=10?"var(--red)":"var(--amber)"}">J+${d}</div>
+          ${tbadge(c.type)}
+        </div>
+      </div>`;
+    }).join("");
+}
+
+// SPLIT
+function renderSplit(){
+  const total=contacts.length||1;
+  document.getElementById("splitChart").innerHTML=["B2B","B2C"].map(t=>{
+    const tc=contacts.filter(c=>c.type===t),tv=tc.reduce((s,c)=>s+(c.value||0),0);
+    const pct=Math.round(tc.length/total*100);
+    const col=t==="B2B"?"var(--cyan)":"var(--purple)";
+    return `<div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="color:${col};font-weight:700;font-size:14px">${t}</span>
+        <span class="text-muted" style="font-size:11px">${tc.length} · ${fmtFull(tv)}</span>
+      </div>
+      <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${col};opacity:.85;border-radius:4px"></div>
+      </div>
+      <div class="text-muted" style="font-size:11px;margin-top:3px">${pct}% des contacts</div>
+    </div>`;
+  }).join("");
+}
+
+// CONTACTS
+function renderContacts(){
+  // populate selects
+  const fst=document.getElementById("fstatus");
+  if(fst.options.length<2) fst.innerHTML=`<option>Tous</option>`+STATUSES.map(s=>`<option>${s}</option>`).join("");
+  const fsc=document.getElementById("fscript");
+  fsc.innerHTML=`<option value="">Tous les scripts</option>`+scripts.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
+  if(listFilters.script) fsc.value=listFilters.script;
+
+  const {search,status,type,script,sort}=listFilters;
+  let list=contacts.filter(c=>{
+    const q=search.toLowerCase();
+    return (!q||c.name.toLowerCase().includes(q)||(c.company||"").toLowerCase().includes(q)||c.email.toLowerCase().includes(q))
+      &&(status==="Tous"||c.status===status)
+      &&(type==="Tous"||c.type===type)
+      &&(!script||c.scriptId===script);
+  }).sort((a,b)=>{
+    if(sort==="value") return (b.value||0)-(a.value||0);
+    if(sort==="name")  return a.name.localeCompare(b.name);
+    return new Date(b.lastContact)-new Date(a.lastContact);
+  });
+
+  document.getElementById("clist").innerHTML=list.length===0
+    ?`<div class="empty">Aucun contact trouvé.</div>`
+    :list.map(c=>{
+      const d=daysAgo(c.lastContact);
+      const urgent=d>=7&&!["Gagné","Perdu"].includes(c.status);
+      return `<div class="ccard">
+        <div class="ava">${c.name.charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="cn">${c.name}</div>
+          <div class="cco">${c.company||"—"}</div>
+          <div class="cmeta">${sbadge(c.status)}${tbadge(c.type)}${scriptBadge(c.scriptId)}</div>
+        </div>
+        <div class="cright">
+          <div class="cval">${fmt(c.value||0)}</div>
+          <div class="cdays ${urgent?"text-red":"text-muted"}">J+${d}</div>
+        </div>
+        ${c.nextAction?`<div class="cact">→ ${c.nextAction}</div>`:""}
+        <div class="cbtn-wrap">
+          <button class="bi" data-edit="${c.id}">✏️ Modifier</button>
+          <button class="bi bi-del" data-del="${c.id}">🗑</button>
+        </div>
+      </div>`;
+    }).join("");
+
+  document.querySelectorAll("[data-edit]").forEach(el=>el.addEventListener("click",e=>{e.stopPropagation();openContactModal(+el.dataset.edit)}));
+  document.querySelectorAll("[data-del]").forEach(el=>el.addEventListener("click",e=>{
+    e.stopPropagation();
+    if(confirm("Supprimer ce contact ?")){contacts=contacts.filter(c=>c.id!==+el.dataset.del);toast("Supprimé");renderAll();}
+  }));
+}
+
+// KANBAN
+function renderKanban(){
+  document.getElementById("kanban").innerHTML=STATUSES.map(s=>{
+    const c=SC[s],group=contacts.filter(x=>x.status===s);
+    const tot=group.reduce((a,x)=>a+(x.value||0),0);
+    const cards=group.map(ct=>{
+      const sc=getScript(ct.scriptId);
+      return `<div class="kcard" data-edit="${ct.id}">
+        <div class="kcard-name">${ct.name}</div>
+        <div class="kcard-co">${ct.company||ct.email}</div>
+        <div class="kcard-foot">
+          <span class="kcard-val">${fmt(ct.value||0)}</span>
+          ${sc?`<span class="kcard-script" style="background:${sc.color}22;color:${sc.color}">✍️ ${sc.name}</span>`:""}
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="kcol">
+      <div class="khdr">
+        <div class="ktitle"><span class="sdot" style="background:${c.dot}"></span><span style="color:${c.text}">${s}</span><span class="kcount">${group.length}</span></div>
+        <span class="ktot">${fmt(tot)}</span>
+      </div>
+      <div class="kbody">${cards||`<div style="color:var(--muted);font-size:11px;text-align:center;padding:8px">Vide</div>`}</div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll(".kcard[data-edit]").forEach(el=>el.addEventListener("click",()=>openContactModal(+el.dataset.edit)));
+}
+
+// SCRIPTS SECTION
+function renderScripts(){
+  document.getElementById("scriptCount").textContent=`(${scripts.length} scripts)`;
+
+  // — Rapport —
+  const total=contacts.length||1;
+  document.getElementById("scriptReport").innerHTML=scripts.length===0
+    ?`<div class="empty">Aucun script créé. Ajoute ton premier script ci-dessous.</div>`
+    :scripts.map(s=>{
+      const mc=contacts.filter(c=>c.scriptId===s.id);
+      const won=mc.filter(c=>c.status==="Gagné");
+      const lost=mc.filter(c=>c.status==="Perdu");
+      const wonVal=won.reduce((a,c)=>a+(c.value||0),0);
+      const conv=mc.length?Math.round(won.length/mc.length*100):0;
+      // Score couleur
+      let scoreColor,scoreLabel;
+      if(mc.length===0){scoreColor="var(--muted)";scoreLabel="Pas encore de données"}
+      else if(conv>=60){scoreColor="var(--green)";scoreLabel="🟢 Très efficace"}
+      else if(conv>=35){scoreColor="var(--amber)";scoreLabel="🟡 Efficacité moyenne"}
+      else{scoreColor="var(--red)";scoreLabel="🔴 Peu efficace"}
+      const col=s.color;
+      const preview=s.text.length>120?s.text.slice(0,120)+"…":s.text;
+      return `<div class="script-report-card" style="background:${hexToRgba(col,0.04)};border-color:${hexToRgba(col,0.4)}">
+        <div class="src-head">
+          <div>
+            <div class="src-name" style="color:${col}">${s.name}</div>
+          </div>
+          <div class="src-score-badge" style="background:${scoreColor}22;color:${scoreColor};border:1px solid ${scoreColor}55">${scoreLabel}</div>
+        </div>
+        <div class="src-preview" style="color:${col};border-color:${hexToRgba(col,0.4)}">"${preview}"</div>
+        <div class="src-stats">
+          <div class="src-stat"><div class="src-stat-lbl" style="color:${col}">Envoyé</div><div class="src-stat-val" style="color:${col}">${mc.length}</div></div>
+          <div class="src-stat"><div class="src-stat-lbl" style="color:${col}">Gagnés</div><div class="src-stat-val" style="color:var(--green)">${won.length}</div></div>
+          <div class="src-stat"><div class="src-stat-lbl" style="color:${col}">Perdus</div><div class="src-stat-val" style="color:var(--red)">${lost.length}</div></div>
+          <div class="src-stat"><div class="src-stat-lbl" style="color:${col}">Valeur</div><div class="src-stat-val" style="color:${col}">${fmt(wonVal)}</div></div>
+        </div>
+        <div class="src-conv-line" style="color:${col}"><span>Taux de conversion</span><span style="font-weight:800;color:${scoreColor}">${mc.length?conv+"%":"—"}</span></div>
+        <div class="src-bar-track"><div class="src-bar-fill" style="width:${conv}%;background:${scoreColor}"></div></div>
+      </div>`;
+    }).join("");
+
+  // — Gestionnaire —
+  document.getElementById("scriptManager").innerHTML=scripts.length===0
+    ?`<div class="empty">Aucun script. Clique sur "+ Nouveau script".</div>`
+    :scripts.map(s=>`
+      <div class="script-item">
+        <div class="si-head">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="script-color-dot" style="background:${s.color}"></div>
+            <div class="si-name" style="color:${s.color}">${s.name}</div>
+          </div>
+          <div class="si-actions">
+            <button class="bi" data-sedit="${s.id}">✏️</button>
+            <button class="bi bi-del" data-sdel="${s.id}">🗑</button>
+          </div>
+        </div>
+        <div class="si-text" style="border-color:${s.color}44">"${s.text.length>200?s.text.slice(0,200)+"…":s.text}"</div>
+      </div>`).join("");
+
+  document.querySelectorAll("[data-sedit]").forEach(el=>el.addEventListener("click",()=>openScriptModal(el.dataset.sedit)));
+  document.querySelectorAll("[data-sdel]").forEach(el=>el.addEventListener("click",()=>{
+    const sid=el.dataset.sdel;
+    const used=contacts.some(c=>c.scriptId===sid);
+    if(used&&!confirm("Ce script est assigné à des contacts. Supprimer quand même ?")){return;}
+    scripts=scripts.filter(s=>s.id!==sid);
+    contacts=contacts.map(c=>c.scriptId===sid?{...c,scriptId:""}:c);
+    toast("Script supprimé");renderAll();
+  }));
+}
+
+// ══════════════════════════════════════════════════════
+// MODAL CONTACT
+// ══════════════════════════════════════════════════════
+function buildScriptPicker(){
+  const picker=document.getElementById("scriptPicker");
+  if(scripts.length===0){
+    picker.innerHTML=`<div class="sp-none">Aucun script créé — va dans la section "Scripts" pour en créer un.</div>`;
+    return;
+  }
+  // "Aucun" option
+  const noneSelected=!selScriptId;
+  picker.innerHTML=`<div class="sp-option ${noneSelected?"sel":""}" data-spick="">
+    <span class="sp-dot" style="background:var(--muted)"></span>
+    <span class="sp-name text-muted">Aucun script</span>
+  </div>`+scripts.map(s=>`
+    <div class="sp-option ${selScriptId===s.id?"sel":""}" data-spick="${s.id}" style="${selScriptId===s.id?"border-color:"+s.color:""}">
+      <span class="sp-dot" style="background:${s.color}"></span>
+      <span class="sp-name" style="color:${s.color}">${s.name}</span>
+      <span class="sp-preview">${s.text.slice(0,60)}…</span>
+    </div>`).join("");
+
+  picker.querySelectorAll(".sp-option").forEach(el=>{
+    el.addEventListener("click",()=>{
+      selScriptId=el.dataset.spick;
+      buildScriptPicker();
+    });
+  });
+}
+
+function openContactModal(id=null){
+  editingContactId=id;
+  const fst=document.getElementById("fStatus");
+  fst.innerHTML=STATUSES.map(s=>`<option>${s}</option>`).join("");
+  if(id){
+    const c=contacts.find(x=>x.id===id);
+    document.getElementById("mttl").textContent="Modifier le contact";
+    document.getElementById("fName").value=c.name||"";
+    document.getElementById("fCompany").value=c.company||"";
+    document.getElementById("fEmail").value=c.email||"";
+    document.getElementById("fPhone").value=c.phone||"";
+    document.getElementById("fType").value=c.type||"B2B";
+    fst.value=c.status||"Nouveau";
+    document.getElementById("fValue").value=c.value||"";
+    document.getElementById("fLastContact").value=c.lastContact||today();
+    document.getElementById("fNextAction").value=c.nextAction||"";
+    document.getElementById("fNotes").value=c.notes||"";
+    selScriptId=c.scriptId||"";
+  } else {
+    document.getElementById("mttl").textContent="Nouveau contact";
+    ["fName","fCompany","fEmail","fPhone","fValue","fNextAction","fNotes"].forEach(i=>document.getElementById(i).value="");
+    document.getElementById("fType").value="B2B";
+    fst.value="Nouveau";
+    document.getElementById("fLastContact").value=today();
+    selScriptId="";
+  }
+  buildScriptPicker();
+  document.getElementById("ovContact").style.display="flex";
+}
+
+function closeContactModal(){document.getElementById("ovContact").style.display="none";editingContactId=null;}
+
+function saveContact(){
+  const name=document.getElementById("fName").value.trim();
+  if(!name){alert("Le nom est obligatoire.");return;}
+  const form={name,
+    company:document.getElementById("fCompany").value.trim(),
+    email:document.getElementById("fEmail").value.trim(),
+    phone:document.getElementById("fPhone").value.trim(),
+    type:document.getElementById("fType").value,
+    status:document.getElementById("fStatus").value,
+    value:Number(document.getElementById("fValue").value)||0,
+    lastContact:document.getElementById("fLastContact").value||today(),
+    nextAction:document.getElementById("fNextAction").value.trim(),
+    notes:document.getElementById("fNotes").value.trim(),
+    scriptId:selScriptId||"",
+  };
+  if(editingContactId){
+    contacts=contacts.map(c=>c.id===editingContactId?{...c,...form}:c);
+    toast("Contact mis à jour");
+  } else {
+    contacts.push({id:nextId++,...form});
+    toast("Contact ajouté");
+  }
+  closeContactModal();renderAll();
+}
+
+// ══════════════════════════════════════════════════════
+// MODAL SCRIPT
+// ══════════════════════════════════════════════════════
+function buildColorPicker(){
+  document.getElementById("smColors").innerHTML=PALETTE.map(col=>`
+    <div class="sm-color-opt ${selScriptColor===col?"sel":""}" data-col="${col}" style="background:${col}" title="${col}"></div>`).join("");
+  document.querySelectorAll(".sm-color-opt").forEach(el=>{
+    el.addEventListener("click",()=>{selScriptColor=el.dataset.col;buildColorPicker();});
+  });
+}
+
+function openScriptModal(id=null){
+  editingScriptId=id;
+  if(id){
+    const s=scripts.find(x=>x.id===id);
+    document.getElementById("smttl").textContent="Modifier le script";
+    document.getElementById("smName").value=s.name;
+    document.getElementById("smText").value=s.text;
+    selScriptColor=s.color;
+  } else {
+    document.getElementById("smttl").textContent="Nouveau script";
+    document.getElementById("smName").value="";
+    document.getElementById("smText").value="";
+    selScriptColor=PALETTE[scripts.length%PALETTE.length];
+  }
+  buildColorPicker();
+  document.getElementById("ovScript").style.display="flex";
+}
+
+function closeScriptModal(){document.getElementById("ovScript").style.display="none";editingScriptId=null;}
+
+function saveScript(){
+  const name=document.getElementById("smName").value.trim();
+  const text=document.getElementById("smText").value.trim();
+  if(!name){alert("Le nom est obligatoire.");return;}
+  if(!text){alert("Le texte du script est obligatoire.");return;}
+  if(editingScriptId){
+    scripts=scripts.map(s=>s.id===editingScriptId?{...s,name,text,color:selScriptColor}:s);
+    toast("Script mis à jour");
+  } else {
+    scripts.push({id:"s"+nextScriptId++,name,text,color:selScriptColor});
+    toast("Script ajouté");
+  }
+  closeScriptModal();renderAll();
+}
+
+// ══════════════════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════════════════
+function bindFilters(){
+  document.getElementById("fsearch").addEventListener("input",e=>{listFilters.search=e.target.value;renderContacts()});
+  document.getElementById("fstatus").addEventListener("change",e=>{listFilters.status=e.target.value;renderContacts()});
+  document.getElementById("ftype").addEventListener("change",e=>{listFilters.type=e.target.value;renderContacts()});
+  document.getElementById("fscript").addEventListener("change",e=>{listFilters.script=e.target.value;renderContacts()});
+  document.getElementById("fsort").addEventListener("change",e=>{listFilters.sort=e.target.value;renderContacts()});
+}
+
+// ══════════════════════════════════════════════════════
+// SCROLL SPY
+// ══════════════════════════════════════════════════════
+function initNav(){
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+      document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
+      btn.classList.add("active");
+      const sec=document.getElementById(btn.dataset.tab);
+      if(sec){ sec.classList.add("active"); window.scrollTo({top:0,behavior:"smooth"}); }
+      // Re-render active view
+      if(btn.dataset.tab==="s-contacts") renderContacts();
+      if(btn.dataset.tab==="s-pipeline") renderKanban();
+      if(btn.dataset.tab==="s-scripts")  renderScripts();
+    });
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+document.getElementById("btnAdd").addEventListener("click",()=>openContactModal());
+document.getElementById("mx").addEventListener("click",closeContactModal);
+document.getElementById("mcancel").addEventListener("click",closeContactModal);
+document.getElementById("msave").addEventListener("click",saveContact);
+document.getElementById("ovContact").addEventListener("click",e=>{if(e.target===e.currentTarget)closeContactModal()});
+
+document.getElementById("btnNewScript").addEventListener("click",()=>openScriptModal());
+document.getElementById("smx").addEventListener("click",closeScriptModal);
+document.getElementById("smcancel").addEventListener("click",closeScriptModal);
+document.getElementById("smsave").addEventListener("click",saveScript);
+document.getElementById("ovScript").addEventListener("click",e=>{if(e.target===e.currentTarget)closeScriptModal()});
+
+bindFilters();
+renderAll();
+initNav();
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('service-worker.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.log('SW error',e));
+  });
+}
+</script>
+</body>
+</html>
